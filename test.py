@@ -20,6 +20,16 @@ def find_match_pts(training_gray, query_gray):
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck = True)
     matches = bf.match(descriptors_train, descriptors_query)
     matches = sorted(matches, key = lambda x : x.distance)
+    good = []
+    bad = []
+    for m in matches:
+        if m.distance < 40:
+            good.append([m])
+        else:
+            bad.append([m])
+    if len(good) < 2 or len(bad) > 20:
+        print("No matching points")
+        sys.exit()
     src_pts = np.float32([ keypoints_train[m.queryIdx].pt for m in matches]).reshape(-1,1,2)
     dst_pts = np.float32([ keypoints_query[m.trainIdx].pt for m in matches]).reshape(-1,1,2)
     return src_pts, dst_pts
